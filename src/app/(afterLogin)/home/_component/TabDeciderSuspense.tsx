@@ -3,7 +3,7 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import TabDecider from "./TapDecider";
+import TabDecider from "./TabDecider";
 import { getPostRecommends } from "../_lib/getPostRecommends";
 
 export default async function TabDeciderSuspense() {

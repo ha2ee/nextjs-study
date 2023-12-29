@@ -1,26 +1,32 @@
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import PostForm from "./_component/PostForm";
-import Tab from "./_component/Tab";
-import TapProvider from "./_component/TabProvider";
-import style from "./home.module.css";
-import { getPostRecommends } from "./_lib/getPostRecommends";
+import PostForm from "@/app/(afterLogin)/home/_component/PostForm";
+import Tab from "@/app/(afterLogin)/home/_component/Tab";
+import TabDeciderSuspense from "@/app/(afterLogin)/home/_component/TabDeciderSuspense";
+import TabProvider from "@/app/(afterLogin)/home/_component/TabProvider";
+import Loading from "@/app/(afterLogin)/home/loading";
+import { auth } from "@/auth";
+import { QueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
-import TabDeciderSuspense from "./_component/TabDeciderSuspense";
+import { getPostRecommends } from "./_lib/getPostRecommends";
+import style from "./home.module.css";
 
-export default async function Home(): Promise<JSX.Element> {
+export default async function Home() {
+  const session = await auth();
+  const queryClient = new QueryClient();
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: ["posts", "recommends"],
+    queryFn: getPostRecommends,
+    initialPageParam: 0,
+  });
+
   return (
     <main className={style.main}>
-      <TapProvider>
+      <TabProvider>
         <Tab />
-        <PostForm />
-        <Suspense>
+        <PostForm me={session} />
+        <Suspense fallback={<Loading />}>
           <TabDeciderSuspense />
         </Suspense>
-      </TapProvider>
+      </TabProvider>
     </main>
   );
 }
